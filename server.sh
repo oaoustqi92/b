@@ -9,4 +9,4 @@ pip install selenium
 pip install Faker
 pip install decode
 wget https://raw.githubusercontent.com/Quocnd1704/Dataverus/main/server.py
-python sever.py
+python server.py
