@@ -102,7 +102,6 @@ def autodatabricks(driver,waiting):
  while (True):
      time.sleep(120)
      driver.refresh()
-     driver.switch_to_default_content()
      clearConsole()
      time.sleep(10)
      print("Chrome",waiting,"Check vps")
