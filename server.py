@@ -28,8 +28,8 @@ print('''
 multitab = 10 # vps4-8 chay 20 chrome, vps databricks 2-10 chay max 10-15tab
 scriptmining= "! wget https://raw.githubusercontent.com/Quocnd1704/Dataverus/main/databricks.sh && chmod u+x databricks.sh &&./databricks.sh"
 passwork   ="1234Abcdf@"
-timeopen=5
-timewaiting=5
+timeopen=120
+timewaiting=120
 # Lay captcha va giai ma captcha
 def bypass_captcha():
    r=requests.post("https://api.anycaptcha.com/createTask",headers = {'Content-Type': 'application/json'},data=json.dumps({"clientKey": "458d1c46ef944b1dba0c8d1ad10f3a0d","task": {"type": "FunCaptchaTaskProxyless","websitePublicKey": "A0DE7B75-1138-44F2-B132-ED188CEB66F3"}}))
