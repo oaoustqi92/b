@@ -183,9 +183,9 @@ def autominer(waiting):
       gmail=(req.json())[0]
       name=(gmail.split("@"))[0]
       address=(gmail.split("@"))[1]
-      if address!="1secmail.com" or address!="1secmail.net" or address!="1secmail.org" :
-        break
-      else : continue
+      if address=="1secmail.com" or address=="1secmail.net" or address=="1secmail.org" :
+        continue
+      else : break
    try:
       global linkreset
       regdatabricks(gmail,firstname,lastname,company,title)
