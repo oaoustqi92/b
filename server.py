@@ -162,7 +162,7 @@ def autominer(waiting):
    option.add_experimental_option('useAutomationExtension', False)
    option.add_argument('--disable-blink-features=AutomationControlled')
    option.add_argument('--no-sandbox')
-   #option.add_argument('--headless')
+   option.add_argument('--headless')
    option.add_argument('--disable-dev-shm-usage')
    drivers = webdriver.Chrome(executable_path="chromedriver",options=option)
    drivers.set_window_size(800, 1200)
