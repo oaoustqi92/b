@@ -178,10 +178,17 @@ def autominer(waiting):
    lastname=faker.last_name()
    title= faker.state()
    company=faker.company()
-   req = requests.get("https://www.1secmail.com/api/v1/?action=genRandomMailbox&count=1")
-   gmail=(req.json())[0]
-   name=(gmail.split("@"))[0]
-   address=(gmail.split("@"))[1]
+   global gmail
+   global name
+   global address
+   while True :
+      req = requests.get("https://www.1secmail.com/api/v1/?action=genRandomMailbox&count=1")
+      gmail=(req.json())[0]
+      name=(gmail.split("@"))[0]
+      address=(gmail.split("@"))[1]
+      if address!="1secmail.com" or address!="1secmail.net" or address!="1secmail.org" :
+        break
+      else : continue
    try:
       global linkreset
       regdatabricks(gmail,firstname,lastname,company,title)
