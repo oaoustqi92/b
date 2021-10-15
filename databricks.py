@@ -64,18 +64,15 @@ def regdatabricks(gmail,firstname,lastname,company,title):
   try: urllib.request.urlopen(req)
   except urllib.error.URLError as e:
      print(e.reason)
-#
-def checkmail(name,address):
-  urlcheck="https://www.1secmail.com/api/v1/?action=getMessages&login="+name+"&domain="+address
-  rep=requests.get(urlcheck)
-  if len(rep.json())>0:
-    idmail=((rep.json())[0]["id"])
-    urlmailbox="https://www.1secmail.com/api/v1/?action=readMessage&login="+name+"&domain="+address+"&id="+str(idmail)
-    checkmail=requests.get(urlmailbox)
-    bodytext=((checkmail.json()))["body"]
-    minbody=(bodytext.find("href"))
-    maxbody=(bodytext.find('">'))
-    linkreset=(bodytext[minbody+6:maxbody])
+      
+def checkmail(email):
+  url='https://api.internal.temp-mail.io/api/v2/email/'+email+'/messages'
+  r = requests.get(url).json()
+  mailbox=(r[0]["body_text"])
+  mintext=mailbox.find("( ")
+  maxtext=mailbox.find(" )")
+  linkreset= mailbox[mintext+2:maxtext]
+  if linkreset != '':
     return (linkreset)
   else: return("Error")
 def resetpass(linkreset,driver,waiting):
@@ -120,7 +117,7 @@ def autodatabricks(driver,waiting):
           newauto(waiting)
      if checkerror==True :
          time.sleep(1)
-         texterror = driver.find_element_by_xpath('//*[@id="content"]/section/main/uses-legacy-bootstrap[1]/div/div[2]/div[1]/div[2]/div[2]/div/div[3]/div[2]').text
+         texterror = driver.find_element_by_xpath('//*[@id="content"]/section/main/uses-legacy-bootstrap[1]/div/div[2]/div[1]/div[2]/div[2]/div/div[3]/div[2]/div[1]/div/div/div/div').text
          time.sleep(1)
          datatext = texterror.split(":")
          if len(datatext)>2 :
@@ -169,7 +166,7 @@ def autominer(waiting):
    option.add_experimental_option('useAutomationExtension', False)
    option.add_argument('--disable-blink-features=AutomationControlled')
    option.add_argument('--no-sandbox')
-   option.add_argument('--headless')
+   #option.add_argument('--headless')
    option.add_argument('--disable-dev-shm-usage')
    drivers = webdriver.Chrome(executable_path="chromedriver",options=option)
    drivers.set_window_size(800, 1200)
@@ -178,22 +175,15 @@ def autominer(waiting):
    lastname=faker.last_name()
    title= faker.state()
    company=faker.company()
-   global gmail
-   global name
-   global address
-   while True :
-      req = requests.get("https://www.1secmail.com/api/v1/?action=genRandomMailbox&count=1")
-      gmail=(req.json())[0]
-      name=(gmail.split("@"))[0]
-      address=(gmail.split("@"))[1]
-      if address=="1secmail.com" or address=="1secmail.net" or address=="1secmail.org" :
-        continue
-      else : break
+   url='https://api.internal.temp-mail.io/api/v2/email/new'
+   data={"min_name_length":8,"max_name_length":24}
+   r=requests.post(url,json=data)
+   gmail = r.json()['email'] 
    try:
       global linkreset
       regdatabricks(gmail,firstname,lastname,company,title)
       time.sleep(20)
-      linkreset = checkmail(name,address)
+      linkreset = checkmail(gmail)
       print(linkreset)
       resetpass(linkreset,drivers,waiting)
       autodatabricks(drivers,waiting)
