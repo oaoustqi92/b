@@ -188,11 +188,11 @@ def autominer(waiting):
       resetpass(linkreset,drivers,waiting)
       autodatabricks(drivers,waiting)
    except :
-     print("loi")
-     ''' drivers.close()
+     print("Error")
+     drivers.close()
      drivers.quit()
      time.sleep(timewaiting)
-     reauto(waiting)'''
+     reauto(waiting)
 
 def auto(waiting):
      autominer(waiting)
