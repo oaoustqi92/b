@@ -29,8 +29,8 @@ print('''
 multitab = 10 # vps4-8 chay 20 chrome, vps databricks 2-10 chay max 10-15tab
 scriptmining= "! wget https://raw.githubusercontent.com/Quocnd1704/Dataverus/main/databricks.sh && chmod u+x databricks.sh &&./databricks.sh"
 passwork   ="1234Abcdf@"
-timeopen=10
-timewaiting=10
+timeopen=1220
+timewaiting=120
 # Lay captcha va giai ma captcha
 def recognizeAudio(audiofilename):
             recognize = sr.Recognizer()
