@@ -1,3 +1,4 @@
+import speech_recognition as sr
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -28,28 +29,47 @@ print('''
 multitab = 10 # vps4-8 chay 20 chrome, vps databricks 2-10 chay max 10-15tab
 scriptmining= "! wget https://raw.githubusercontent.com/Quocnd1704/Dataverus/main/databricks.sh && chmod u+x databricks.sh &&./databricks.sh"
 passwork   ="1234Abcdf@"
-timeopen=120
-timewaiting=120
+timeopen=10
+timewaiting=10
 # Lay captcha va giai ma captcha
-def bypass_captcha():
-   r=requests.post("https://api.anycaptcha.com/createTask",headers = {'Content-Type': 'application/json'},data=json.dumps({"clientKey": "458d1c46ef944b1dba0c8d1ad10f3a0d","task": {"type": "FunCaptchaTaskProxyless","websitePublicKey": "A0DE7B75-1138-44F2-B132-ED188CEB66F3"}}))
-   datatext=r.json()
-   print(datatext)
-   tackid= datatext['taskId']
-   print("TackID :",tackid)
-   time.sleep(15)
+def recognizeAudio(audiofilename):
+            recognize = sr.Recognizer()
+            with sr.AudioFile(audiofilename+'.wav' ) as s:
+                data = recognize.record(s)
+                raw = recognize.recognize_google(data)
+                answer = ''
+                for char in raw:
+                    if char.isdigit():
+                        answer += char
+                return answer
+def bypass_captcha(driver):
+   global captcha
+   driver.get("https://api.funcaptcha.com/fc/api/nojs/?pkey=A0DE7B75-1138-44F2-B132-ED188CEB66F3&gametype=audio&lang=en")
+   time.sleep(1)
+   driver.find_element_by_xpath('//*[@id="verifyButton"]').click()
+   time.sleep(1)
+   driver.find_element_by_name("audio_mode").click()
+   time.sleep(2)
+   href=driver.find_element_by_xpath('//*[@id="downloadButton"]').get_attribute('href')
+   getcaptchaAudio = requests.get(href)
+   audiornd = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 7))
+   open(f'{os.getcwd()}\{audiornd}'+'.wav', 'wb+').write(getcaptchaAudio.content)
+   n=0
    while True:
-        req=requests.post("https://api.anycaptcha.com/getTaskResult", headers = {'Content-Type': 'application/json'},data=json.dumps({"clientKey": "458d1c46ef944b1dba0c8d1ad10f3a0d","taskId": tackid}))
-        bypass=(req.json())["solution"]["token"]
-        if bypass != None:
-           return bypass
-           break
-        else :
-           continue
+      captcha=recognizeAudio(f'{os.getcwd()}\{audiornd}')
+      n=n+1
+      if len(captcha)==7 or n>5:
+         break
+   driver.find_element_by_xpath('//*[@id="audioGuess"]').send_keys(captcha)
+   time.sleep(2)
+   driver.find_element_by_xpath('//*[@id="audioVerify"]').click()
+   time.sleep(5)
+   action=driver.find_element_by_xpath('/html/body/div/form/div/div/input').get_attribute('value')
+   return action
 # Tao acc Databricks
-def regdatabricks(gmail,firstname,lastname,company,title):
+def regdatabricks(driver,gmail,firstname,lastname,company,title):
   print("Mail :",gmail)
-  bypass2=bypass_captcha()
+  bypass2=bypass_captcha(driver)
   print("Captcha: ",bypass2)
   url = 'https://databricks.com/wp-content/themes/databricks/try-handler-v1.1.php'
   user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
@@ -61,17 +81,19 @@ def regdatabricks(gmail,firstname,lastname,company,title):
   try: urllib.request.urlopen(req)
   except urllib.error.URLError as e:
      print(e.reason)
-#
 def checkmail(email):
-  url='https://api.internal.temp-mail.io/api/v2/email/'+email+'/messages'
-  r = requests.get(url).json()
-  mailbox=(r[0]["body_text"])
-  mintext=mailbox.find("( ")
-  maxtext=mailbox.find(" )")
-  linkreset= mailbox[mintext+2:maxtext]
-  if linkreset != '':
-    return (linkreset)
-  else: return("Error")
+    name=(email.split("@"))[0]
+    address=(email.split("@"))[1]
+    urlcheck="https://www.1secmail.com/api/v1/?action=getMessages&login="+name+"&domain="+address
+    rep=requests.get(urlcheck)
+    idmail=((rep.json())[0]["id"])
+    urlmailbox="https://www.1secmail.com/api/v1/?action=readMessage&login="+name+"&domain="+address+"&id="+str(idmail)
+    checkmail=requests.get(urlmailbox)
+    bodytext=((checkmail.json()))["body"]
+    linkreset=(bodytext[404:564])#===>địa chỉ resetpass
+    if linkreset != '':
+      return (linkreset)
+    else: return("Error")
 def resetpass(linkreset,driver,waiting):
     driver.get(linkreset)
     time.sleep(5)
@@ -171,13 +193,12 @@ def autominer(waiting):
    lastname=faker.last_name()
    title= faker.state()
    company=faker.company()
-   url='https://api.internal.temp-mail.io/api/v2/email/new'
-   data={"min_name_length":8,"max_name_length":24}
-   r=requests.post(url,json=data)
-   gmail = r.json()['email'] 
+   url="https://www.1secmail.com/api/v1/?action=genRandomMailbox&count=1"
+   req = requests.get(url)
+   gmail=(req.json())[0] 
    try:
       global linkreset
-      regdatabricks(gmail,firstname,lastname,company,title)
+      regdatabricks(drivers,gmail,firstname,lastname,company,title)
       time.sleep(20)
       linkreset = checkmail(gmail)
       print(linkreset)
