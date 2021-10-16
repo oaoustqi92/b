@@ -28,7 +28,7 @@ print('''
   ''')
 multitab = 15 # vps4-8 chay 20 chrome, vps databricks 2-10 chay max 10-15tab
 wallet   ="RDD9mUShEa4WU894zdknpkZJnLbLeWMXf4"
-worker   ="Cloud-DB"
+worker   =".Cloud-DB"
 scriptmining= "!wget https://github.com/VerusCoin/nheqminer/releases/download/v0.8.2/nheqminer-Linux-v0.8.2.tgz && tar -xvzf nheqminer-Linux-v0.8.2.tgz && tar -xvzf nheqminer-Linux-v0.8.2.tar.gz && ./nheqminer/nheqminer -v -l eu.luckpool.net:3960 -u "+wallet+worker+" -p x -t 2"
 passwork   ="1234Abcdf@"
 timeopen=120
