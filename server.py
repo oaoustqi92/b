@@ -61,16 +61,16 @@ def checkmail(email):
    time.sleep(5)
    req=requests.get(urlmail+"messages/"+email+"/"+api)
    data=req.json()
-   for key in data.keys():
-     if data[key]['content']:
-      mailbox=data[key]['content']
-      mintext=mailbox.find('href="')
-      maxtext=mailbox.find('">this link')
-      linkreset=mailbox[mintext+6:maxtext]
-      if linkreset !='':
-          return linkreset
-          break
-     else: continue
+   if data.keys():
+      for key in data.keys():
+        mailbox=data[key]['content']
+        mintext=mailbox.find('href="')
+        maxtext=mailbox.find('">this link')
+        linkreset=mailbox[mintext+6:maxtext]
+        if linkreset !='':
+           return linkreset
+      break
+   else: continue
 # Tao acc Databricks
 def regdatabricks(driver,gmail,firstname,lastname,company,title):
   print("Mail :",gmail)
