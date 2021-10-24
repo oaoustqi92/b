@@ -58,17 +58,21 @@ def getmail(firstname,lastname):
    email=reg.text
    return email   
 
-def checkmail(email): 
+def checkmail(email):
+  while True: 
+   time.sleep(5)
    req=requests.get(urlmail+"messages/"+email+"/"+api)
    data=req.json()
    for key in data.keys():
+     if data[key]['content']:
       mailbox=data[key]['content']
       mintext=mailbox.find('href="')
       maxtext=mailbox.find('">this link')
       linkreset=mailbox[mintext+6:maxtext]
       if linkreset !='':
           return linkreset
-      else: return ("No Mailbox")
+          break
+     else: continue
 # Tao acc Databricks
 def regdatabricks(driver,gmail,firstname,lastname,company,title):
   print("Mail :",gmail)
@@ -207,7 +211,7 @@ def autominer(waiting):
    try:
       email=getmail(firstname,lastname)
       regdatabricks(drivers,email,firstname,lastname,company,title)
-      time.sleep(70)
+      time.sleep(5)
       linkresetpas = checkmail(email)
       print(linkresetpas)
       resetpass(linkresetpas,drivers,waiting)
