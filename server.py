@@ -57,7 +57,8 @@ def getmail(firstname,lastname):
    return email   
  
 def checkmail(email):
-  while True: 
+  n=0
+  while n==0: 
    time.sleep(5)
    req=requests.get(urlmail+"messages/"+email+"/"+api)
    data=req.json()   
@@ -69,7 +70,8 @@ def checkmail(email):
         linkreset=mailbox[mintext+6:maxtext]
         if linkreset !='':
            return linkreset
-      break
+           n=1
+           break
    else: continue
 # Tao acc Databricks
 def regdatabricks(driver,gmail,firstname,lastname,company,title):
