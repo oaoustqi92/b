@@ -62,8 +62,8 @@ def checkmail(email):
   while True: 
    time.sleep(5)
    req=requests.get(urlmail+"messages/"+email+"/"+api)
-   data=req.json()
-   if data.keys():
+   data=req.json()   
+   if len(data)>0:
       for key in data.keys():
         mailbox=data[key]['content']
         mintext=mailbox.find('href="')
