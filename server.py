@@ -59,7 +59,7 @@ def getmail(firstname,lastname):
 def checkmail(email):
   n=0
   while n==0: 
-   time.sleep(5)
+   time.sleep(20)
    req=requests.get(urlmail+"messages/"+email+"/"+api)
    data=req.json()   
    if len(data)>0:
