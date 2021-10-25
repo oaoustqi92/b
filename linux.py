@@ -74,7 +74,9 @@ def regdatabricks(driver,gmail,firstname,lastname,company,title):
   time.sleep(2)
   checkboxElement = driver.find_element_by_id("mkto_form_consent")
   checkboxElement.send_keys(Keys.SPACE)
-  time.sleep(5)
+  time.sleep(2)
+  driver.find_element_by_xpath('//*[@id="submitToMktoForm_2021Feb10"]/div[21]/span/button').click()  
+  time.sleep(10)
   checkboxElementw = driver.find_element_by_xpath('//*[@id="ce-placeholder-button"]')
   checkboxElementw.send_keys(Keys.ENTER)   
 def resetpass(linkreset,driver,waiting):
@@ -162,14 +164,7 @@ def checkvps(driver,xpath):
     return True
 
 def autominer(waiting):
-   option = webdriver.ChromeOptions()
-   option.add_experimental_option("excludeSwitches", ["enable-automation"])
-   option.add_experimental_option('useAutomationExtension', False)
-   option.add_argument('--disable-blink-features=AutomationControlled')
-   option.add_argument('--no-sandbox')
-   #option.add_argument('--headless')
-   option.add_argument('--disable-dev-shm-usage')
-   drivers = webdriver.Firefox(executable_path="/usr/bin/geckodriver",options=option)
+   drivers = webdriver.Firefox(executable_path="/usr/bin/geckodriver")
    drivers.set_window_size(800, 1200)
    #drivers.minimize_window()
    firstname=faker.first_name()
